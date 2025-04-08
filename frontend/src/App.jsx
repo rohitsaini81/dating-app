@@ -9,7 +9,6 @@ import FeedPage from "./comp/Feed";
 import Navbar from "./comp/Navbar";
 import MatchingPage from "./comp/SwipePage";
 
-export const server_url = "https://dating-app-suvb.onrender.com/";
 function App() {
   return (
     <>
@@ -22,7 +21,7 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/logout" element={<LogoutPage/>} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/feed" element={<MatchingPage />} />
+          <Route path="/app/recs" element={<MatchingPage />} />
         </Routes>
       </Router>
     </>

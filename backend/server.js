@@ -12,7 +12,7 @@ dotenv.config();
 
 app.use(cors(
     {
-        origin: '*', // Replace with your frontend URL
+        origin: process.env.ORIGIN || "https://dating-app-eight-sigma.vercel.app", // Replace with your frontend URL
         credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     }
 ));
