@@ -7,6 +7,7 @@ import LogoutPage from "./comp/Logout";
 import ProfilePage from "./comp/Profile";
 import FeedPage from "./comp/Feed";
 import Navbar from "./comp/Navbar";
+import MatchingPage from "./comp/SwipePage";
 
 export const server_url = "http://localhost:5000/";
 function App() {
@@ -21,7 +22,7 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/logout" element={<LogoutPage/>} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/feed" element={<MatchingPage />} />
         </Routes>
       </Router>
     </>
