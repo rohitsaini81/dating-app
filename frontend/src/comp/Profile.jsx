@@ -1,221 +1,230 @@
-import { server_url } from "@/config";
-import { useEffect, useState } from "react";
+import { server_url, static_url } from "@/config";
+import { useEffect, useState, useRef } from "react";
+import toast from "react-hot-toast";
+import { Plus, X } from "lucide-react";
 
 function ProfilePage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [images, setImages] = useState([]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await fetch(`${server_url}user/profile`, {
           method: "GET",
-
           credentials: "include",
         });
 
         const data = await response.json();
 
         if (response.status === 401) {
-          // toast.error("Please Login to continue");
-
           window.location.href = "/auth?type=login";
         } else if (response.status === 200) {
-          console.log(data);
           setUser(data);
+          console.log(data);
+          setImages((data?.posts || []).filter(Boolean));
           setLoading(false);
-          setImages((prev) => prev.filter((img) => img !== ""));
-
         }
       } catch (error) {
         console.error("Error fetching user:", error);
+        setLoading(false);
       }
     };
 
     fetchUser();
-
   }, []);
-  const [images, setImages] = useState([
-    "https://source.unsplash.com/random/200x200?sig=1",
-    "https://source.unsplash.com/random/200x200?sig=2",
-    "",
-    "https://plus.unsplash.com/premium_photo-1663954642189-47be8570548e?fm=jpg&q=60&w=3000",
-    "https://source.unsplash.com/random/200x200?sig=3",
-    "",
-    "",
-    "",
-    "",
-  ]);
+
+  const handleUpload = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`${server_url}upload`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setImages((prev) => [...prev, data.url]);
+        toast.success("Image uploaded!");
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch (err) {
+      toast.error("Upload error: " + err.message);
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="loader"></div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
-        <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-2xl">
-          <div className="flex flex-col items-center mb-6">
-            <img
-              src={user.profilePicture || "/profile.png"}
-              alt="Profile"
-              className="w-32 h-32 rounded-full border-4 border-blue-500 object-cover"
-            />
-            <h2 className="text-2xl font-semibold mt-4">{user.username}</h2>
-            <p className="text-gray-500">{user.email}</p>
-            <p className="text-gray-500">
-              {user.bio ? user.bio : "Softwere Developer"}
-            </p>
-            <strong>Interests:</strong> {user.interests || "Not specified"}
-            <div className="flex flex-wrap justify-center mt-4">
-              <p className="mr-1 px-4 py-2 bg-white-600 text-black rounded-lg hover:bg-gray-700 transition">
-                Codding
-              </p>
-              <p className="mr-1 px-4 py-2 bg-white-600 text-black rounded-lg hover:bg-gray-700 transition">
-                Java
-              </p>
-              <p className="mr-1 px-4 py-2 bg-white-600 text-black rounded-lg hover:bg-gray-700 transition">
-                Basket BAll
-              </p>
-            </div>
-            <p className="text-gray-500">{user.location}</p>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              onClick={() => setEditing(!editing)}
-            >
-              {editing ? "Close Editor" : "Edit Profile"}
-            </button>
-          </div>
-          {editing && <EditProfile onClose={() => setEditing(false)} />}
-
-          <h3 className="text-xl font-semibold mt-8 mb-4">Available Photos</h3>
-          <div className="grid grid-cols-3 gap-4 p-4">
-            {images.map((img, index) => (
-              <div
-                key={index}
-                className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden shadow"
-              >
-                <img
-                  src={img}
-                  alt={`post-${index}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        <div className="loader">Loading...</div>
       </div>
     );
   }
-}
-
-function EditProfile({ onClose }) {
-  return (
-    <div className="mt-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-      <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
-      <form className="space-y-4">
-        <input
-          type="text"
-          placeholder="Your Name"
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Bio"
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <input
-          type="text"
-          placeholder="Interests"
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <ImageGrid />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full bg-gray-300 text-gray-800 py-2 rounded-lg hover:bg-gray-400 transition"
-        >
-          Cancel
-        </button>
-      </form>
-    </div>
-  );
-}
-
-export default ProfilePage;
-
-// src/comp/ImageGrid.jsx
-import { X, Plus } from "lucide-react"; // optional: uses lucide icons
-
-function ImageGrid() {
-  const [images, setImages] = useState([
-    "https://source.unsplash.com/random/200x200?sig=1",
-    "https://source.unsplash.com/random/200x200?sig=2",
-    "",
-    "https://plus.unsplash.com/premium_photo-1663954642189-47be8570548e?fm=jpg&q=60&w=3000",
-    "https://source.unsplash.com/random/200x200?sig=3",
-    "",
-    "",
-    "",
-    "",
-  ]);
-
-  const handleRemove = (index) => {
-    const updated = [...images];
-    updated[index] = "";
-    setImages(updated);
-  };
-
-  const handleAdd = (index) => {
-    const url = prompt("Enter image URL:");
-    if (url) {
-      const updated = [...images];
-      updated[index] = url;
-      setImages(updated);
-    }
-  };
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-4">
-      {images.map((img, index) => (
-        <div
-          key={index}
-          className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden shadow"
-        >
-          {img ? (
-            <>
-              <img
-                src={img}
-                alt={`photo-${index}`}
-                className="w-full h-full object-cover"
-              />
+    <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
+      <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-2xl">
+        <div className="flex flex-col items-center mb-6">
+          <img
+            src={user.profilePicture || "/profile.png"}
+            alt="Profile"
+            className="w-32 h-32 rounded-full border-4 border-blue-500 object-cover"
+          />
+          <h2 className="text-2xl font-semibold mt-4">{user.username}</h2>
+          <p className="text-gray-500">{user.email}</p>
+          <p className="text-gray-500">{user.bio || "Software Developer"}</p>
+          <p className="text-gray-600">{user.interests || "Not specified"}</p>
+          <p className="text-gray-500">{user.location || ""}</p>
+
+          <button
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            onClick={() => setEditing(!editing)}
+          >
+            {editing ? "Close Editor" : "Edit Profile"}
+          </button>
+        </div>
+
+        {editing && (
+          <EditProfile
+            user={user}
+            images={images}
+            setImages={setImages}
+            onClose={() => setEditing(false)}
+          />
+        )}
+
+        <h3 className="text-xl font-semibold mt-8 mb-4">Available Photos</h3>
+        <div className="grid grid-cols-3 gap-4 p-4">
+          {images.map((img, index) => (
+            <div
+              key={index}
+              className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden shadow"
+            >
+              <img src={static_url+img} alt={`post-${index}`} className="w-full h-full object-cover" />
               <button
-                onClick={() => handleRemove(index)}
+                onClick={() => handleRemoveImage(index)}
                 className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100"
               >
                 <X className="w-4 h-4 text-red-500" />
               </button>
-            </>
-          ) : (
-            <button
-              onClick={() => handleAdd(index)}
-              className="flex items-center justify-center w-full h-full text-gray-400 hover:bg-gray-200"
-            >
-              <Plus className="w-6 h-6" />
-            </button>
-          )}
+            </div>
+          ))}
+
+          {/* Upload Button */}
+          <button
+            onClick={handleUpload}
+            className="flex items-center justify-center w-full aspect-square bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-500"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </div>
-      ))}
+      </div>
     </div>
   );
 }
+
+function EditProfile({ user, images, setImages, onClose }) {
+  const [name, setName] = useState(user.name || "");
+  const [bio, setBio] = useState(user.bio || "");
+  const [interests, setInterests] = useState(user.interests || "");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name,
+      bio,
+      interests,
+      images,
+    };
+
+    try {
+      const response = await fetch(`${server_url}user/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        toast.success("Profile updated!");
+        onClose();
+      } else {
+        toast.error("Failed to update profile");
+      }
+    } catch (err) {
+      toast.error("Update error: " + err.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6 bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+      <h3 className="text-lg font-semibold mb-2">Edit Profile</h3>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        type="text"
+        placeholder="Your Name"
+        className="w-full p-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        value={bio}
+        onChange={(e) => setBio(e.target.value)}
+        type="text"
+        placeholder="Bio"
+        className="w-full p-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        value={interests}
+        onChange={(e) => setInterests(e.target.value)}
+        type="text"
+        placeholder="Interests"
+        className="w-full p-3 border border-gray-300 rounded-lg"
+      />
+
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        Save Changes
+      </button>
+      <button
+        type="button"
+        onClick={onClose}
+        className="w-full bg-gray-300 text-gray-800 py-2 rounded-lg hover:bg-gray-400 transition"
+      >
+        Cancel
+      </button>
+    </form>
+  );
+}
+
+export default ProfilePage;

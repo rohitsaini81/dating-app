@@ -46,6 +46,15 @@ async function downloadFileTemp(url, savePath) {
 
 // Upload to R2 and delete local file
 async function uploadFile(filePath) {
+
+  const bucketName = process.env.R2_BUCKET_NAME;
+  const fileName = path.basename(filePath);
+  const fileContent = fs.readFileSync(filePath);
+
+  console.log(`📦 Uploading file: ${fileName} to bucket: ${bucketName}`);
+
+
+
   try {
     const bucketName = process.env.R2_BUCKET_NAME;
     const fileName = path.basename(filePath);
@@ -74,12 +83,17 @@ async function uploadFile(filePath) {
 }
 
 // Example usage
-// const fileUrl = 'https://videos.pexels.com/video-files/3196174/3196174-uhd_2560_1440_25fps.mp4';
-// const savePath = '/tmp/temp_video.mp4';
+const fileUrl = 'https://videos.pexels.com/video-files/3196174/3196174-uhd_2560_1440_25fps.mp4';
+const savePath = '/tmp/temp_video.mp4';
 
 // (async () => {
-//   const downloaded = await downloadFileTemp(fileUrl, savePath);
+//    const downloaded = await downloadFileTemp(fileUrl, savePath);
 //   if (downloaded) {
-//     await uploadFile(downloaded);
-//   }
+//     await uploadFile(savePath);
+//      console.log(`File uploaded successfully: ${fileName}`);
+//    }
 // })();
+
+
+
+export { downloadFileTemp, uploadFile };
