@@ -150,7 +150,7 @@ function ProfilePage() {
 }
 
 function EditProfile({ user, images, setImages, onClose }) {
-  const [name, setName] = useState(user.name || "");
+  const [username, setUserName] = useState(user.username || "");
   const [bio, setBio] = useState(user.bio || "");
   const [interests, setInterests] = useState(user.interests || "");
 
@@ -158,14 +158,14 @@ function EditProfile({ user, images, setImages, onClose }) {
     e.preventDefault();
 
     const payload = {
-      name,
+      username,
       bio,
       interests,
       images,
     };
 
     try {
-      const response = await fetch(`${server_url}user/profile`, {
+      const response = await fetch(`${server_url}user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -189,8 +189,8 @@ function EditProfile({ user, images, setImages, onClose }) {
     <form onSubmit={handleSubmit} className="mt-6 bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
       <h3 className="text-lg font-semibold mb-2">Edit Profile</h3>
       <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={username}
+        onChange={(e) => setUserName(e.target.value)}
         type="text"
         placeholder="Your Name"
         className="w-full p-3 border border-gray-300 rounded-lg"

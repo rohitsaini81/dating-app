@@ -94,7 +94,7 @@ users.get("/user/profile", async (req, res) => {
   }
 });
 
-users.post("/user/update", async (req, res) => {
+users.put("/user/update", async (req, res) => {
   const sessionId = req.cookies.SessionId;
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
