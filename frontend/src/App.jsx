@@ -9,7 +9,7 @@ import FeedPage from "./comp/Feed";
 import Navbar from "./comp/Navbar";
 import MatchingPage from "./comp/SwipePage";
 
-export const server_url = "http://localhost:5000/";
+export const server_url = "https://dating-app-suvb.onrender.com/";
 function App() {
   return (
     <>
