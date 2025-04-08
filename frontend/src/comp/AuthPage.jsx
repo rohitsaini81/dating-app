@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { server_url } from "../App";
 import { Navigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Navbar from "./Navbar";
+import { server_url } from "@/config";
 export default function AuthPage() {
   const [username,SetUsername] = useState("");
   const [email,SetEmail] = useState("");

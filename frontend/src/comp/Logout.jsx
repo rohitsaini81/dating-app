@@ -1,5 +1,5 @@
 // src/pages/LogoutPage.jsx
-import { server_url } from "@/App";
+import { server_url } from "@/config";
 import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 

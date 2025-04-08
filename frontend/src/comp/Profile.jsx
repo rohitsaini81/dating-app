@@ -1,4 +1,4 @@
-import { server_url } from "@/App";
+import { server_url } from "@/config";
 import { useEffect, useState } from "react";
 
 function ProfilePage() {
@@ -25,6 +25,8 @@ function ProfilePage() {
           console.log(data);
           setUser(data);
           setLoading(false);
+          setImages((prev) => prev.filter((img) => img !== ""));
+
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -32,7 +34,19 @@ function ProfilePage() {
     };
 
     fetchUser();
+
   }, []);
+  const [images, setImages] = useState([
+    "https://source.unsplash.com/random/200x200?sig=1",
+    "https://source.unsplash.com/random/200x200?sig=2",
+    "",
+    "https://plus.unsplash.com/premium_photo-1663954642189-47be8570548e?fm=jpg&q=60&w=3000",
+    "https://source.unsplash.com/random/200x200?sig=3",
+    "",
+    "",
+    "",
+    "",
+  ]);
 
   if (loading) {
     return (
@@ -78,14 +92,18 @@ function ProfilePage() {
           {editing && <EditProfile onClose={() => setEditing(false)} />}
 
           <h3 className="text-xl font-semibold mt-8 mb-4">Available Photos</h3>
-          <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <img
-                key={item}
-                src={`https://via.placeholder.com/150?text=Photo+${item}`}
-                alt={`Photo ${item}`}
-                className="rounded-xl object-cover"
-              />
+          <div className="grid grid-cols-3 gap-4 p-4">
+            {images.map((img, index) => (
+              <div
+                key={index}
+                className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden shadow"
+              >
+                <img
+                  src={img}
+                  alt={`post-${index}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -115,6 +133,7 @@ function EditProfile({ onClose }) {
           placeholder="Interests"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <ImageGrid />
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
@@ -134,3 +153,69 @@ function EditProfile({ onClose }) {
 }
 
 export default ProfilePage;
+
+// src/comp/ImageGrid.jsx
+import { X, Plus } from "lucide-react"; // optional: uses lucide icons
+
+function ImageGrid() {
+  const [images, setImages] = useState([
+    "https://source.unsplash.com/random/200x200?sig=1",
+    "https://source.unsplash.com/random/200x200?sig=2",
+    "",
+    "https://plus.unsplash.com/premium_photo-1663954642189-47be8570548e?fm=jpg&q=60&w=3000",
+    "https://source.unsplash.com/random/200x200?sig=3",
+    "",
+    "",
+    "",
+    "",
+  ]);
+
+  const handleRemove = (index) => {
+    const updated = [...images];
+    updated[index] = "";
+    setImages(updated);
+  };
+
+  const handleAdd = (index) => {
+    const url = prompt("Enter image URL:");
+    if (url) {
+      const updated = [...images];
+      updated[index] = url;
+      setImages(updated);
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-3 gap-4 p-4">
+      {images.map((img, index) => (
+        <div
+          key={index}
+          className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden shadow"
+        >
+          {img ? (
+            <>
+              <img
+                src={img}
+                alt={`photo-${index}`}
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => handleRemove(index)}
+                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100"
+              >
+                <X className="w-4 h-4 text-red-500" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => handleAdd(index)}
+              className="flex items-center justify-center w-full h-full text-gray-400 hover:bg-gray-200"
+            >
+              <Plus className="w-6 h-6" />
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
