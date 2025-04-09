@@ -111,13 +111,5 @@ Advanced search filters
 
 Premium features with Stripe
 
-
-License
-
-This project is licensed under the MIT License.
-
-
 ---
-
-Let me know your app name and any custom features you added—I can tailor it even more specifically.
 
