@@ -1,34 +1,54 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TinderCard from "react-tinder-card";
-
-function MatchingPage() {
-  const [people, setPeople] = useState([
-    {
-      name: "Alice",
-      url: "https://randomuser.me/api/portraits/women/44.jpg",
-    },
-    {
-      name: "Bob",
-      url: "https://randomuser.me/api/portraits/men/36.jpg",
-    },
-    {
-      name: "Clara",
-      url: "https://randomuser.me/api/portraits/women/52.jpg",
-    },
-    {
-      name: "David",
-      url: "https://randomuser.me/api/portraits/men/45.jpg",
-    },
-  ]);
-
+import { server_url } from "@/config";
+export default function MatchingPage() {
+  const [people, setPeople] = useState([]);
+  const childRefs = useRef([]);
   const [bgColor, setBgColor] = useState(
     "bg-gradient-to-br from-pink-100 to-purple-200"
   );
 
-  const swiped = (direction, nameToDelete) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${server_url}users`);
+        const data = await response.json();
+        console.log(data);
+        setPeople((prevPeople) => [...prevPeople, ...data]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+const sendRequest = async (userId) => {
+  try {
+    const response = await fetch(`${server_url}users/request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Error sending request:", error);
+}}
+
+
+  const swiped = (direction, nameToDelete, personId) => {
     console.log("removing: " + nameToDelete);
     if (direction === "right") {
+      sendRequest(personId);
       setBgColor("bg-green-200");
     } else if (direction === "left") {
       setBgColor("bg-red-200");
@@ -44,7 +64,6 @@ function MatchingPage() {
     setBgColor("bg-gradient-to-br from-pink-100 to-purple-200");
   };
 
-  const childRefs = useRef([]);
 
   const swipe = (dir) => {
     const currentIndex = people.length - 1;
@@ -64,17 +83,17 @@ function MatchingPage() {
           <TinderCard
             ref={(el) => (childRefs.current[index] = el)}
             className="absolute"
-            key={person.name}
-            onSwipe={(dir) => swiped(dir, person.name)}
-            onCardLeftScreen={() => outOfFrame(person.name)}
+            key={person.username}
+            onSwipe={(dir) => swiped(dir, person.username, person._id)}
+            onCardLeftScreen={() => outOfFrame(person.username)}
             swipeRequirementType="position"
             preventSwipe={["up", "down"]}
           >
             <div
-              style={{ backgroundImage: `url(${person.url})` }}
+              style={{ backgroundImage: `url(${person.profilePic})` }}
               className="relative bg-center bg-cover w-80 h-96 rounded-2xl shadow-xl flex items-end p-4 text-white text-xl font-bold"
             >
-              {person.name}
+              {person.username}
             </div>
           </TinderCard>
         ))}
@@ -96,5 +115,3 @@ function MatchingPage() {
     </div>
   );
 }
-
-export default MatchingPage;
