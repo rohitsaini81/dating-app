@@ -19,7 +19,7 @@ users.get("/users", async (req, res) => {
 });
 
 const verify = async (req, res, next) => {
-  const sessionId = req.cookies.sessionId; // lowercase 'sessionId' to match cookie name
+  const sessionId = req.cookies.SessionId; // lowercase 'sessionId' to match cookie name
 
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -250,4 +250,26 @@ users.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 
+users.post("/user/add",verify, async (req, res) => {
+  const sessionId = req.cookies.SessionId;
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const userData = await usersDb.findOne({ sessionId: sessionId });
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const { friendId } = req.body;
+  if (!friendId) {
+    return res.status(400).json({ error: "Please enter all fields" });
+  }
+
+}
+);
+
+
+
+
+users.post("/user/add/chat", verify, async (req, res) => {
+})
 export default users;
