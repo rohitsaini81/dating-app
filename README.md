@@ -69,11 +69,11 @@ npm install
 
 Create a .env file in the server/ directory with the following:
 
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+MONGO_URI :"your_mongodb_uri"
+JWT_SECRET :"your_jwt_secret"
+CLOUDINARY_NAME :"your_cloud_name"
+CLOUDINARY_API_KEY :"your_api_key"
+CLOUDINARY_API_SECRET :"your_api_secret"
 
 Start the backend:
 
