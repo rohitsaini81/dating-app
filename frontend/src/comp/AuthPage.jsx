@@ -14,7 +14,7 @@ export default function AuthPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${server_url}home`, {
+        const response = await fetch(`${server_url}verify`, {
           credentials: "include",
         });
         if (!response.ok) {
@@ -43,7 +43,7 @@ export default function AuthPage() {
   // Handle login/register submit
   const HandleSubmit = async (event) => {
     event.preventDefault();
-    const url = isLogin ? `${server_url}login` : `${server_url}register`;
+    const url = isLogin ? `${server_url}login` : `${server_url}user/create`;
     const data = isLogin
     ? {
         email: email,

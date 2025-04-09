@@ -2,12 +2,16 @@ import { server_url, static_url } from "@/config";
 import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { Plus, X } from "lucide-react";
+import { ColorRing } from "react-loader-spinner";
+import { Navigate } from "react-router-dom";
 
 function ProfilePage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [images, setImages] = useState([]);
+  const [redirect, setRedirect] = useState(false);
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -21,7 +25,10 @@ function ProfilePage() {
         const data = await response.json();
 
         if (response.status === 401) {
-          window.location.href = "/auth?type=login";
+          toast.error("Please Login");
+          setLoading(false);
+          setRedirect(true);
+          throw new Error("Unauthorized");
         } else if (response.status === 200) {
           setUser(data);
           console.log(data);
@@ -71,10 +78,16 @@ function ProfilePage() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  if(redirect) {
+    return <Navigate to="/auth?type=login" replace />;
+  }
+
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="loader">Loading...</div>
+        <ColorRing/>
       </div>
     );
   }
@@ -84,7 +97,7 @@ function ProfilePage() {
       <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-2xl">
         <div className="flex flex-col items-center mb-6">
           <img
-            src={user.profilePicture || "/profile.png"}
+            src={user.profilePic || "/profile.png"}
             alt="Profile"
             className="w-32 h-32 rounded-full border-4 border-blue-500 object-cover"
           />
