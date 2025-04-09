@@ -6,6 +6,8 @@ import path from "path";
 import dotenv from "dotenv";
 import AWS from "aws-sdk";
 import usersDb from "../models/project.js";
+import friendShipsDb from "../models/friendship.js";
+import chatsDb from "../models/chat.js";
 import login from "./auth.js";
 import { uploadFile } from "../methods/upload.js";
 
@@ -93,7 +95,7 @@ users.get("/user/profile", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+//  update user details
 users.put("/user/update", async (req, res) => {
   const sessionId = req.cookies.SessionId;
   if (!sessionId) {
@@ -141,16 +143,21 @@ users.put("/user/update", async (req, res) => {
 
 
 
-users.get("/create", async (req, res) => {
+users.post("/user/create", async (req, res) => {
   try {
-    const user = {
-      username: "rohit saini",
-      email: "rohit1322saini@gmail.com",
-      password: "admin123",
-    };
-    const test = await usersDb.find({ email: user.email });
+    const {email,username,password} =await  req.body
+    if(!email || !username || !password){
+      res.json({message:"all field are madnangory"})
+    }
+    const test = await usersDb.findOne({ email: email });
     if (test) {
+      console.log(test)
       return res.json({ error: "User Already Exists" });
+    }
+    const user={
+      username:username,
+      email:email,
+      password:password
     }
     const users = await usersDb.create(user);
     res.json(users);
@@ -160,9 +167,12 @@ users.get("/create", async (req, res) => {
 });
 
 users.post("/login", async (req, res) => {
+  if(!req.body){
+    return res.status(400).json({ error: "Please enter all fields" });
+  }
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ error: "Please enter all fields" });
+    res.status(400).json({ error: "Please enter all fields" });
   }
 
   try {
@@ -191,7 +201,7 @@ users.post("/login", async (req, res) => {
       .status(200)
       .json({ message: "Login successful" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "internal server error" });
   }
 });
 
@@ -250,7 +260,9 @@ users.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 
-users.post("/user/add",verify, async (req, res) => {
+
+// friendship database routes ---->
+users.post("/user/add/friend",verify, async (req, res) => {
   const sessionId = req.cookies.SessionId;
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -259,15 +271,112 @@ users.post("/user/add",verify, async (req, res) => {
   if (!userData) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const { friendId } = req.body;
+  const { friendId} = req.body;
   if (!friendId) {
     return res.status(400).json({ error: "Please enter all fields" });
   }
+  const friendData = await usersDb.findOne({ _id: friendId });
+  if (!friendData) {
+    return res.status(400).json({ error: "Friend not found" });
+  }
+  const response = await friendShipsDb.create({
+    userId: userData._id,
+    friendId: friendData._id,
+  });
+  
+  res.send(response)
 
 }
 );
 
+// list all friends 
+users.get("/user/friends", verify, async (req, res) => {
+  const sessionId = req.cookies.SessionId;
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const userData = await usersDb.findOne({ sessionId: sessionId });
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const friends = await friendShipsDb
+    .find({ userId: userData._id })
+    .populate("friendId");
+  res.send(friends);
+}
+);
 
+// list all friends for chat with request accepted
+users.get("/user/friends/accepted", verify, async (req, res) => {
+  const sessionId = req.cookies.SessionId;
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const userData = await usersDb.findOne({ sessionId: sessionId });
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const friendList = await friendShipsDb
+    .find({ userId: userData._id, status: "accepted" })
+    .populate("friendId");
+  res.send(friendList);
+}
+);
+
+// accept request
+users.get("/user/friends/accept/:id", verify, async (req, res) => {
+  const sessionId = req.cookies.SessionId;
+  const friendId = req.params.id;
+  if (!friendId) {
+    return res.status(400).json({ error: "Friend ID is required" });
+  }
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const userData = await usersDb.findOne({ sessionId: sessionId });
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const friendData = await friendShipsDb.findById(req.params.id);
+  if (!friendData) {
+    return res.status(400).json({ error: "Friend not found" });
+  }
+  const response = await friendShipsDb.findByIdAndUpdate(
+    req.params.id,
+    { status: "accepted" },
+    { new: true }
+  );
+  if (!response) {
+    return res.status(500).json({ error: "Failed to update friend" });
+  }
+  res.send(response);
+}
+);
+
+
+// get friend by id 
+users.get("/user/friends/:id", verify, async (req, res) => {
+  const sessionId = req.cookies.SessionId;
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const userData = await usersDb.findOne({ sessionId: sessionId });
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const friends = await friendShipsDb
+    .find({ userId: req.params.id })
+    .populate("friendId");
+  res.send(friends);
+}
+);
+
+
+
+
+
+
+// chats database routes ---->
 
 
 users.post("/user/add/chat", verify, async (req, res) => {
