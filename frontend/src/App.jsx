@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 import Dashboard from "./comp/Dashboard";
 import LogoutPage from "./comp/Logout";
 import ProfilePage from "./comp/Profile";
-import FeedPage from "./comp/Feed";
 import Navbar from "./comp/Navbar";
 import MatchingPage from "./comp/SwipePage";
 
