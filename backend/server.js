@@ -8,12 +8,12 @@ import users from './routes/crud.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const ORIGIN = process.env.ORIGIN
 dotenv.config();
 
 app.use(cors(
     {
-        origin: process.env.ORIGIN 
-        // || "https://dating-app-eight-sigma.vercel.app"
+        origin: ORIGIN || "https://dating-app-eight-sigma.vercel.app"
         ,
         credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     }
