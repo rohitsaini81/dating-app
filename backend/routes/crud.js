@@ -197,6 +197,8 @@ users.post("/login", async (req, res) => {
       .cookie("SessionId", token, {
         expires: new Date(Date.now() + 25892000000),
         httpOnly: true,
+        secure: true,
+        sameSite: "None",
       })
       .status(200)
       .json({ message: "Login successful" });
