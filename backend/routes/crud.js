@@ -20,8 +20,10 @@ users.get("/users", async (req, res) => {
   }
 });
 
+
+
 const verify = async (req, res, next) => {
-  const sessionId = req.cookies.SessionId; // lowercase 'sessionId' to match cookie name
+  const sessionId = req.body.token; // lowercase 'sessionId' to match cookie name
 
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -39,6 +41,28 @@ const verify = async (req, res, next) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// const verify = async (req, res, next) => {
+//   const sessionId = req.cookies.SessionId; // lowercase 'sessionId' to match cookie name
+
+//   if (!sessionId) {
+//     return res.status(401).json({ error: "Unauthorized" });
+//   }
+
+//   try {
+//     const user = await usersDb.findOne({ sessionId: sessionId });
+//     if (!user) {
+//       return res.status(401).json({ error: "Unauthorized" });
+//     }
+
+//     req.user = user;
+//     next(); // ✅ Fix: removed extra parentheses
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 users.get("/logout", async (req, res) => {
   // console.log("cookie");
   const sessionId = req.cookies.SessionId;
@@ -63,21 +87,43 @@ users.get("/logout", async (req, res) => {
   }
 });
 
-users.get("/verify", async (req, res) => {
-  const sessionId = req.cookies.SessionId;
-  if (!sessionId) {
+
+
+const JWT_SECRET = "mysecret"
+import jwt from "jsonwebtoken";
+
+users.post("/verify", (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
+  const token = authHeader.split(" ")[1];
   try {
-    const user = await usersDb.findOne({ sessionId: sessionId });
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.status(200).json({ message: "Token valid", user: decoded });
+  } catch (err) {
+    res.status(401).json({ error: "Invalid token" });
   }
 });
+
+
+// users.post("/verify", async (req, res) => {
+//   const sessionId = req.body.token;
+//   if (!sessionId) {
+//     return res.status(401).json({ error: "Unauthorized" });
+//   }
+//   try {
+//     const user = await usersDb.findOne({ sessionId: sessionId });
+//     if (!user) {
+//       return res.status(401).json({ error: "Unauthorized" });
+//     }
+//     res.json(user);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 users.get("/user/profile", async (req, res) => {
   const sessionId = req.cookies.SessionId;
@@ -201,7 +247,7 @@ users.post("/login", async (req, res) => {
         sameSite: "None",
       })
       .status(200)
-      .json({ message: "Login successful" });
+      .json({ message: "Login successful",token });
   } catch (error) {
     res.status(500).json({ error: "internal server error" });
   }
