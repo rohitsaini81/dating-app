@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import Cookies from 'js-cookie';
 import Navbar from "./Navbar";
 import { server_url } from "@/config";
 export default function AuthPage() {
@@ -21,7 +22,8 @@ export default function AuthPage() {
           throw new Error("Network response was not ok");
         }
         if(response.status === 200){
-          setRedirect(true);
+          console.log(response)
+          // setRedirect(true);
         }
         
       } catch (error) {
