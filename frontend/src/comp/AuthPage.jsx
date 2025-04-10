@@ -23,7 +23,7 @@ export default function AuthPage() {
         }
         if(response.status === 200){
           console.log(response)
-          // setRedirect(true);
+          setRedirect(true);
         }
         
       } catch (error) {
