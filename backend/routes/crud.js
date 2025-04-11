@@ -203,10 +203,13 @@ users.post("/user/create", async (req, res) => {
       console.log(test)
       return res.json({ error: "User Already Exists" });
     }
+
+    console.log("creating...")
+
     const user={
       username:username,
       email:email,
-      password:password
+      password:password,
     }
     const users = await usersDb.create(user);
     res.json(users);

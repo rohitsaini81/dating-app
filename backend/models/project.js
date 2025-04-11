@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true},
   gender: { type: String, required: false },
   interests: [{ type: String, required: false }],
-  profilePic: { type: String, default: "https://via.placeholder.com/120" },
+  profilePic: { type: String, required:false },
   bio: { type: String, default: "" },
   posts:[{type:String,default:"",required:false}],
   
