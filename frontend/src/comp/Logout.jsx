@@ -9,6 +9,11 @@ export default function LogoutPage() {
           try {
             const response = await fetch(`${server_url}logout`, {
               credentials: "include",
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             });
             if (!response.ok) {
               throw new Error("Network response was not ok");

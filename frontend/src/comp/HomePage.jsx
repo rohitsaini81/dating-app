@@ -3,9 +3,19 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [redirect, setRedirect] = useState(false);
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      setRedirect(true);
+      return;
+    }
     const fetchData = async () => {
       try {
         const response = await fetch(`${server_url}verify`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
           credentials: "include",
         });
         if (!response.ok) {

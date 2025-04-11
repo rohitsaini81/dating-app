@@ -11,6 +11,11 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [searchParams] = useSearchParams();
 
+  // profile picture
+  const [profilePic, setProfilePic] = useState(null);
+  const [profilePicUrl, setProfilePicUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
   useEffect(() => {
     // Update login/register mode
     const mode = searchParams.get("type");
@@ -25,7 +30,7 @@ export default function AuthPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -49,8 +54,17 @@ export default function AuthPage() {
 
     const url = isLogin ? `${server_url}login` : `${server_url}user/create`;
     const data = isLogin
-      ? { email, password }
-      : { username, email, password };
+  ? { email, password }
+  : { username, email, password, profilePic: profilePicUrl };
+
+
+
+
+    if (!isLogin && !profilePicUrl) {
+      toast.error("Please upload a profile picture before registering");
+      return;
+    }
+    
 
     // Validations
     if (!email || !password || (!isLogin && !username)) {
@@ -102,6 +116,37 @@ export default function AuthPage() {
     }
   };
 
+
+
+  const handleUploadImage = async () => {
+    if (!profilePic) return toast.error("Please select an image");
+  
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("image", profilePic); // or whatever field your API expects
+  
+      const res = await fetch(`${server_url}upload`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const result = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(result.error || "Upload failed");
+      }
+  
+      setProfilePicUrl(result.url); // Or result.path or whatever you get back
+      toast.success("Profile picture uploaded!");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
@@ -110,15 +155,49 @@ export default function AuthPage() {
         </h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           {!isLogin && (
-            <input
-              name="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <>
+
+
+              <input
+                type="file"
+                accept="image/*"
+                placeholder="Profile Picture"
+                onChange={(e) => setProfilePic(e.target.files[0])}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+
+              {profilePic && (
+                <>
+                  <div className="mt-2 text-center">
+                    <img
+                      src={URL.createObjectURL(profilePic)}
+                      alt="Preview"
+                      className="h-24 w-24 object-cover rounded-full mx-auto"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleUploadImage}
+                    disabled={uploading}
+                    className="mt-2 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    {uploading ? "Uploading..." : "Upload Profile Picture"}
+                  </button>
+
+                  <input
+                name="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+                </>
+              )}
+            </>
           )}
+
           <input
             name="email"
             type="email"
