@@ -12,6 +12,26 @@ import login from "./auth.js";
 import { uploadFile } from "../methods/upload.js";
 
 users.get("/users", async (req, res) => {
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
+
+  const user = await usersDb.findOne({ sessionId: sessionId });
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // check if profile is complete
+
+  if (!user.gender || !user.interests || !user.profilePic || !user.bio) {
+    return res.status(400).json({ error: "Please complete your profile" });
+  }
+
+
+  
+  
   try {
     const users = await usersDb.find();
     res.json(users);
@@ -146,7 +166,12 @@ users.get("/user/profile", async (req, res) => {
 });
 //  update user details
 users.put("/user/update", async (req, res) => {
-  const sessionId = req.cookies.SessionId;
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
   }

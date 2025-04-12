@@ -190,10 +190,12 @@ function EditProfile({ user, images, setImages, onClose }) {
     };
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${server_url}user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify(payload),
