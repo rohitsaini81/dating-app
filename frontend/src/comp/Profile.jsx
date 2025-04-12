@@ -173,11 +173,11 @@ function ProfilePage() {
     </div>
   );
 }
-
 function EditProfile({ user, images, setImages, onClose }) {
   const [username, setUserName] = useState(user.username || "");
   const [bio, setBio] = useState(user.bio || "");
   const [interests, setInterests] = useState(user.interests || "");
+  const [gender, setGender] = useState(user.gender || ""); // New state for gender
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -186,6 +186,7 @@ function EditProfile({ user, images, setImages, onClose }) {
       username,
       bio,
       interests,
+      gender, // Include gender in payload
       images,
     };
 
@@ -215,6 +216,7 @@ function EditProfile({ user, images, setImages, onClose }) {
   return (
     <form onSubmit={handleSubmit} className="mt-6 bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
       <h3 className="text-lg font-semibold mb-2">Edit Profile</h3>
+      
       <input
         value={username}
         onChange={(e) => setUserName(e.target.value)}
@@ -222,6 +224,7 @@ function EditProfile({ user, images, setImages, onClose }) {
         placeholder="Your Name"
         className="w-full p-3 border border-gray-300 rounded-lg"
       />
+
       <input
         value={bio}
         onChange={(e) => setBio(e.target.value)}
@@ -229,6 +232,7 @@ function EditProfile({ user, images, setImages, onClose }) {
         placeholder="Bio"
         className="w-full p-3 border border-gray-300 rounded-lg"
       />
+
       <input
         value={interests}
         onChange={(e) => setInterests(e.target.value)}
@@ -236,6 +240,20 @@ function EditProfile({ user, images, setImages, onClose }) {
         placeholder="Interests"
         className="w-full p-3 border border-gray-300 rounded-lg"
       />
+
+      {/* Gender select input */}
+      <select
+        value={gender}
+        onChange={(e) => setGender(e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-700"
+      >
+        <option value="" disabled>Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="non-binary">Non-binary</option>
+        <option value="other">Other</option>
+        <option value="prefer-not-to-say">Prefer not to say</option>
+      </select>
 
       <button
         type="submit"
