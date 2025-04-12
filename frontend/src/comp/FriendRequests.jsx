@@ -6,24 +6,25 @@ import { ColorRing } from "react-loader-spinner";
 function FriendRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
   const fetchRequests = async () => {
     try {
       const res = await fetch(`${server_url}user/friends/`, {
         method: "GET",
         credentials: "include",
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${token}`,
                 },
 
       });
       const data = await res.json();
-      if (res.ok) {
-        setRequests(data);
-        console.log(requests)
-      } else {
-        toast.error("Failed to load friend requests");
+      if(!res.ok) {
+        throw new Error(data.message || "Failed to fetch friend requests");
       }
+      setRequests(data);
+      console.log("your data");
+      console.log(data);
     } catch (err) {
       toast.error("Error: " + err.message);
     } finally {
@@ -31,15 +32,27 @@ function FriendRequests() {
     }
   };
 
-  useEffect(() => {
     fetchRequests();
   }, []);
 
   const handleAction = async (id, action) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("You must be logged in to perform this action");
+      return;
+    }
+    if (action !== "accept" && action !== "reject") {
+      toast.error("Invalid action");
+      return;
+    }
     try {
-      const res = await fetch(`${server_url}user/friends/${action}/${id}`, {
+      const res = await fetch(`${server_url}user/friend/${action}/${id}`, {
         method: "GET",
         credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        
       });
       if (res.ok) {
         setRequests((prev) => prev.filter((req) => req._id !== id));
