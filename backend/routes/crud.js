@@ -20,8 +20,15 @@ users.get("/users", async (req, res) => {
   }
 });
 
+
+
 const verify = async (req, res, next) => {
-  const sessionId = req.cookies.SessionId; // lowercase 'sessionId' to match cookie name
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
 
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -39,6 +46,28 @@ const verify = async (req, res, next) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// const verify = async (req, res, next) => {
+//   const sessionId = req.cookies.SessionId; // lowercase 'sessionId' to match cookie name
+
+//   if (!sessionId) {
+//     return res.status(401).json({ error: "Unauthorized" });
+//   }
+
+//   try {
+//     const user = await usersDb.findOne({ sessionId: sessionId });
+//     if (!user) {
+//       return res.status(401).json({ error: "Unauthorized" });
+//     }
+
+//     req.user = user;
+//     next(); // ✅ Fix: removed extra parentheses
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 users.get("/logout", async (req, res) => {
   // console.log("cookie");
   const sessionId = req.cookies.SessionId;
@@ -63,14 +92,28 @@ users.get("/logout", async (req, res) => {
   }
 });
 
-users.get("/verify", async (req, res) => {
-  const sessionId = req.cookies.SessionId;
+
+
+
+
+
+users.post("/verify", async (req, res) => {
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
   if (!sessionId) {
+    console.log("no session id");
     return res.status(401).json({ error: "Unauthorized" });
   }
+
+
   try {
     const user = await usersDb.findOne({ sessionId: sessionId });
     if (!user) {
+      console.log(user)
       return res.status(401).json({ error: "Unauthorized" });
     }
     res.json(user);
@@ -80,7 +123,13 @@ users.get("/verify", async (req, res) => {
 });
 
 users.get("/user/profile", async (req, res) => {
-  const sessionId = req.cookies.SessionId;
+
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -201,7 +250,7 @@ users.post("/login", async (req, res) => {
         sameSite: "None",
       })
       .status(200)
-      .json({ message: "Login successful" });
+      .json({ message: "Login successful",token });
   } catch (error) {
     res.status(500).json({ error: "internal server error" });
   }
@@ -265,7 +314,13 @@ users.post("/upload", upload.single("file"), async (req, res) => {
 
 // friendship database routes ---->
 users.post("/user/add/friend",verify, async (req, res) => {
-  const sessionId = req.cookies.SessionId;
+
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -273,27 +328,41 @@ users.post("/user/add/friend",verify, async (req, res) => {
   if (!userData) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const { friendId} = req.body;
-  if (!friendId) {
+  const { userId} = req.body;
+  if (!userId) {
     return res.status(400).json({ error: "Please enter all fields" });
   }
-  const friendData = await usersDb.findOne({ _id: friendId });
+  const friendData = await usersDb.findOne({ _id: userId });
   if (!friendData) {
     return res.status(400).json({ error: "Friend not found" });
   }
-  const response = await friendShipsDb.create({
-    userId: userData._id,
-    friendId: friendData._id,
-  });
-  
-  res.send(response)
-
+  try{
+    const response = await friendShipsDb.create({
+      userId: userData._id,
+      friendId: friendData._id,
+    });
+    if (!response) {
+      return res.status(500).json({ error: "Failed to add friend" });
+    }
+    res.json(response);
+  }catch(error){
+    // console.log(error.message);
+    res.status(500).json(error.message);
+  }
 }
 );
 
 // list all friends 
 users.get("/user/friends", verify, async (req, res) => {
-  const sessionId = req.cookies.SessionId;
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1]; // Extract the token from the "Bearer" prefix
+  } else {
+    sessionId = req.cookies.SessionId; // Fallback to cookie
+  }
+
+
+  
   if (!sessionId) {
     return res.status(401).json({ error: "Unauthorized" });
   }

@@ -12,7 +12,16 @@ export default function MatchingPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${server_url}users`);
+        const response = await fetch(`${server_url}users`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+
+            },
+          }
+        );
         const data = await response.json();
         console.log(data);
         setPeople((prevPeople) => [...prevPeople, ...data]);
@@ -25,23 +34,31 @@ export default function MatchingPage() {
   }, []);
 
 const sendRequest = async (userId) => {
+  const token = localStorage.getItem("token");
+  console.log(userId);
+  if (!token) {
+    console.error("No token found");
+    return;
+  }
   try {
-    const response = await fetch(`${server_url}users/request`, {
+    const response = await fetch(`${server_url}user/add/friend`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ userId }),
     });
 
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      
+      // throw new Error("Network response was not ok");
     }
 
     const data = await response.json();
     console.log(data);
   } catch (error) {
-    console.error("Error sending request:", error);
+    console.error("Error sending request:", error.message);
 }}
 
 
@@ -83,7 +100,7 @@ const sendRequest = async (userId) => {
           <TinderCard
             ref={(el) => (childRefs.current[index] = el)}
             className="absolute"
-            key={person.username}
+            key={person._id}
             onSwipe={(dir) => swiped(dir, person.username, person._id)}
             onCardLeftScreen={() => outOfFrame(person.username)}
             swipeRequirementType="position"

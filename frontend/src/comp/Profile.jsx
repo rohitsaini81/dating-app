@@ -15,10 +15,19 @@ function ProfilePage() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      setRedirect(true);
+      return;
+    }
     const fetchUser = async () => {
       try {
         const response = await fetch(`${server_url}user/profile`, {
           method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
           credentials: "include",
         });
 
@@ -58,6 +67,9 @@ function ProfilePage() {
     try {
       const res = await fetch(`${server_url}upload`, {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
         body: formData,
         credentials: "include",
       });

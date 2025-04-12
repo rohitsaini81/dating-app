@@ -12,6 +12,10 @@ function FriendRequests() {
       const res = await fetch(`${server_url}user/friends/`, {
         method: "GET",
         credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+
       });
       const data = await res.json();
       if (res.ok) {
