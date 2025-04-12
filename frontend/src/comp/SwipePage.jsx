@@ -25,7 +25,7 @@ export default function MatchingPage() {
           throw new Error(data.error);
         }
         console.log(data);
-        setPeople((prevPeople) => [...prevPeople, ...data]);
+        setPeople(data);
       } catch (error) {
         toast.error(error.message);
       }
