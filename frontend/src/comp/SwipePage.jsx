@@ -13,16 +13,13 @@ export default function MatchingPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${server_url}users`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-
-            },
-          }
-        );
+        const response = await fetch(`${server_url}users`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error);
@@ -37,34 +34,33 @@ export default function MatchingPage() {
     fetchData();
   }, []);
 
-const sendRequest = async (userId) => {
-  const token = localStorage.getItem("token");
-  console.log(userId);
-  if (!token) {
-    console.error("No token found");
-    return;
-  }
-  try {
-    const response = await fetch(`${server_url}user/add/friend`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ userId }),
-    });
-
-    if (!response.ok) {
-      
-      // throw new Error("Network response was not ok");
+  const sendRequest = async (userId) => {
+    const token = localStorage.getItem("token");
+    console.log(userId);
+    if (!token) {
+      console.error("No token found");
+      return;
     }
+    try {
+      const response = await fetch(`${server_url}user/add/friend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
 
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Error sending request:", error.message);
-}}
+      if (!response.ok) {
+        // throw new Error("Network response was not ok");
+      }
 
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error sending request:", error.message);
+    }
+  };
 
   const swiped = (direction, nameToDelete, personId) => {
     console.log("removing: " + nameToDelete);
@@ -85,7 +81,6 @@ const sendRequest = async (userId) => {
     setBgColor("bg-gradient-to-br from-pink-100 to-purple-200");
   };
 
-
   const swipe = (dir) => {
     const currentIndex = people.length - 1;
 
@@ -100,7 +95,7 @@ const sendRequest = async (userId) => {
     >
       <h1 className="text-3xl font-bold mb-6">Find Your Match 💘</h1>
       <div className="w-full max-w-xs relative h-96 mb-10">
-        {people.map((person,index) => (
+        {people.map((person, index) => (
           <TinderCard
             ref={(el) => (childRefs.current[index] = el)}
             className="absolute"
