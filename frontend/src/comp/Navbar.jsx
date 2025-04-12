@@ -1,45 +1,31 @@
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Menu, LogIn, UsersRound } from "lucide-react"
+import { Link } from "react-router-dom";
+import { Home, MessageCircle, Bell, MoreHorizontal, User } from "lucide-react";
 
 export default function Navbar() {
   return (
     <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Logo / Brand */}
-        <Link to="/home" className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-          <UsersRound className="w-6 h-6" />
-          SwipeMatch
+      <div className="max-w-4xl mx-auto px-4 flex items-center justify-between h-16">
+        {/* Home Icon - Logo */}
+        <Link to="/home" className="text-blue-600 hover:text-blue-700 transition">
+          <Home className="w-6 h-6" />
         </Link>
 
-        {/* Nav Links */}
-        <nav className="hidden md:flex items-center gap-6">
-          <Link to="/about" className="text-sm text-gray-600 hover:text-blue-600 transition">About</Link>
-          <Link to="/features" className="text-sm text-gray-600 hover:text-blue-600 transition">Features</Link>
-          <Link to="/societies" className="text-sm text-gray-600 hover:text-blue-600 transition">Societies</Link>
-        </nav>
-
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-3">
-          <Link to="/logout">
-            <Button variant="ghost" className="flex items-center gap-1">
-              <LogIn className="w-4 h-4" />
-              Logout
-            </Button>
+        {/* Nav Icons */}
+        <div className="flex items-center gap-6">
+          <Link to="/chat" className="text-gray-700 hover:text-blue-600 transition">
+            <MessageCircle className="w-6 h-6" />
           </Link>
-          <Link to="/profile">
-            <Button className="flex items-center gap-1">
-              <UsersRound className="w-4 h-4" />
-              Profile
-            </Button>
+          <Link to="/notifications" className="text-gray-700 hover:text-blue-600 transition">
+            <Bell className="w-6 h-6" />
           </Link>
-        </div>
-
-        {/* Mobile Menu Icon */}
-        <div className="md:hidden">
-          <Menu className="w-6 h-6 text-gray-700" />
+          <Link to="/settings" className="text-gray-700 hover:text-blue-600 transition">
+            <MoreHorizontal className="w-6 h-6" />
+          </Link>
+          <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition">
+            <User className="w-6 h-6" />
+          </Link>
         </div>
       </div>
     </header>
-  )
+  );
 }
