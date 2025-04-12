@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import TinderCard from "react-tinder-card";
 import { server_url } from "@/config";
+import toast from "react-hot-toast";
 export default function MatchingPage() {
   const [people, setPeople] = useState([]);
   const childRefs = useRef([]);
@@ -23,10 +24,13 @@ export default function MatchingPage() {
           }
         );
         const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error);
+        }
         console.log(data);
         setPeople((prevPeople) => [...prevPeople, ...data]);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        toast.error(error.message);
       }
     };
 

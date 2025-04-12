@@ -60,7 +60,7 @@ function ProfilePage() {
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+//
     const formData = new FormData();
     formData.append("file", file);
 
@@ -190,10 +190,12 @@ function EditProfile({ user, images, setImages, onClose }) {
     };
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${server_url}user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify(payload),
