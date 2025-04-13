@@ -6,7 +6,7 @@ export default function Navbar() {
     <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
       <div className="max-w-4xl mx-auto px-4 flex items-center justify-between h-16">
         {/* Home Icon - Logo */}
-        <Link to="/home" className="text-blue-600 hover:text-blue-700 transition">
+        <Link to="/dashboard" className="text-blue-600 hover:text-blue-700 transition">
           <Home className="w-6 h-6" />
         </Link>
 
