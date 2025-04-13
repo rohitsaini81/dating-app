@@ -19,7 +19,7 @@ users.get("/users", async (req, res) => {
     sessionId = req.cookies.SessionId; // Fallback to cookie
   }
 
-  const user = await usersDb.findOne({ sessionId: sessionId });
+const user = await usersDb.findOne({ sessionId: sessionId }).select('-password');
   if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -33,7 +33,7 @@ users.get("/users", async (req, res) => {
   
   
   try {
-    const users = await usersDb.find();
+const users = await usersDb.find({}, { password: 0, sessionId: 0, email: 0 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -357,17 +357,46 @@ users.post("/user/add/friend",verify, async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const { userId} = req.body;
-  if (!userId) {
+  if (!userId) {// friend id 
     return res.status(400).json({ error: "Please enter all fields" });
+  }
+  if (userId === userData._id) {
+    return res.status(400).json({ error: "You cannot add yourself as a friend" });
   }
   const friendData = await usersDb.findOne({ _id: userId });
   if (!friendData) {
     return res.status(400).json({ error: "Friend not found" });
   }
+  // Check if friendship already exists
+  const existingFriendship = await friendShipsDb.findOne({
+    userId: userData._id,
+    friendId: friendData._id,
+  });
+  if (existingFriendship) {
+    return res.status(400).json({ error: "Friendship already exists" });
+  }
+  // Check if the user is already a friend
+  const existingFriend = await friendShipsDb.findOne({
+    userId: friendData._id,
+    friendId: userData._id,
+  });
+  if (existingFriend) {
+    return res.status(400).json({ error: "You are already friends" });
+  }
+  // Check if the user has sent a friend request
+  const existingRequest = await friendShipsDb.findOne({
+    userId: friendData._id,
+    friendId: userData._id,
+  });
+  if (existingRequest) {
+    return res.status(400).json({ error: "Friend request already sent" });
+  }
   try{
     const response = await friendShipsDb.create({
       userId: userData._id,
       friendId: friendData._id,
+      friendName: friendData.username,
+      friendProfliePic: friendData.profilePic,
     });
     if (!response) {
       return res.status(500).json({ error: "Failed to add friend" });
@@ -451,6 +480,54 @@ users.get("/user/friends/accept/:id", verify, async (req, res) => {
   res.send(response);
 }
 );
+
+// Reject friend request
+users.get("/user/friend/reject/:id", verify, async (req, res) => {
+  let sessionId = req.headers.authorization;
+  if (sessionId) {
+    sessionId = sessionId.split(" ")[1];
+  } else {
+    sessionId = req.cookies.SessionId;
+  }
+
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized Login" });
+  }
+
+  const friendshipId = req.params.id;
+
+  if (!friendshipId) {
+    return res.status(400).json({ error: "Friendship ID is required" });
+  }
+
+  const userData = await usersDb.findOne({ sessionId });
+
+  if (!userData) {
+    return res.status(401).json({ error: "Unauthorized User" });
+  }
+
+  // Find the friendship entry by ID
+  const friendship = await friendShipsDb.findById(friendshipId);
+
+  if (!friendship) {
+    return res.status(400).json({ error: "Friendship not found" });
+  }
+
+  // Optional: Check if the logged-in user is involved in the friendship
+  if (friendship.userId.toString() !== userData._id.toString() &&
+      friendship.friendId.toString() !== userData._id.toString()) {
+    return res.status(403).json({ error: "You are not authorized to modify this friendship" });
+  }
+
+  const result = await friendShipsDb.findByIdAndDelete(friendshipId);
+
+  if (!result) {
+    return res.status(500).json({ error: "Failed to reject friend request" });
+  }
+
+  res.status(200).json({ success: true, message: "Friend request rejected", data: result });
+});
+
 
 
 // get friend by id 
