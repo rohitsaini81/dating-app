@@ -154,7 +154,7 @@ users.get("/user/profile", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
-    const user = await usersDb.findOne({ sessionId: sessionId });
+    const user = await usersDb.findOne({ sessionId: sessionId }, { password: 0, sessionId: 0});
     if (!user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
