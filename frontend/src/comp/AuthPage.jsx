@@ -41,7 +41,7 @@ export default function AuthPage() {
   }, [searchParams]);
 
   if (redirect) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleSubmit = async (event) => {
