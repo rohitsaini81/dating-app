@@ -4,6 +4,11 @@ const messages = [ { name: "Ravinder Malha", time: "3m", msg: "4+ new messages",
 
 export default function Chat() { const [activeTab, setActiveTab] = useState("Primary");
 
+
+console.log(messages)
+
+
+
 return ( <div className="text-white min-h-screen px-4 py-2"> 
 
 
