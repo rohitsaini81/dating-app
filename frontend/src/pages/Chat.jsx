@@ -4,7 +4,7 @@ const messages = [ { name: "Ravinder Malha", time: "3m", msg: "4+ new messages",
 
 export default function Chat() { const [activeTab, setActiveTab] = useState("Primary");
 
-return ( <div className="bg-black text-white min-h-screen px-4 py-2"> <div className="flex items-center justify-between mb-4"> <h1 className="text-xl font-bold">scientist.tech</h1> <div className="flex items-center gap-4"> <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" /> <div className="w-6 h-6 bg-gray-800 rounded-full" /> </div> </div>
+return ( <div className="text-white min-h-screen px-4 py-2"> <div className="flex items-center justify-between mb-4"> <h1 className="text-xl font-bold">scientist.tech</h1> <div className="flex items-center gap-4"> <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" /> <div className="w-6 h-6 bg-gray-800 rounded-full" /> </div> </div>
 
 <div className="flex gap-2 mb-4">
     {['Primary', 'General', 'Requests'].map(tab => (
