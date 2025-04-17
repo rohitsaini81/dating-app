@@ -34,11 +34,25 @@ const user = await usersDb.findOne({ sessionId: sessionId }).select('-password')
   
   try {
 const users = await usersDb.find({}, { password: 0, sessionId: 0, email: 0 });
-    res.json(users);
+
+
+const filteredUsers = await users.filter(user => {
+  return (
+    user.userId !== userId &&
+    user.gender &&
+    user.interests &&
+    user.profilePic &&
+    user.bio
+  );
+});
+
+
+    res.json(filteredUsers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
