@@ -7,7 +7,7 @@ import ProfilePage from "./comp/Profile";
 import Navbar from "./comp/Navbar";
 import MatchingPage from "./comp/SwipePage";
 import Home from "./comp/Home";
-import Chat from "./comp/Chat";
+import Chat from "./pages/Chat";
 import Notification from "./comp/Notification";
 
 // Wrapper to handle location outside Router
