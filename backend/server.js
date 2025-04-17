@@ -13,7 +13,7 @@ dotenv.config();
 
 app.use(cors(
     {
-        origin: ORIGIN || "https://dating-app-eight-sigma.vercel.app"
+        origin: ORIGIN || "https://www.swipematch.online"
         ,
         credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     }
