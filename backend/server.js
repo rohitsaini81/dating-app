@@ -5,9 +5,9 @@ import cookieParser from 'cookie-parser';
 import dotenv from "dotenv";
 import conDb from './models/con.js';
 import users from './routes/crud.js';
-
+import video from './routes/video.js';
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 const ORIGIN = process.env.ORIGIN
 dotenv.config();
 
@@ -33,7 +33,9 @@ app.get('/api', (req, res) => {
 });
 // app.use(router)
 app.use(users)
+app.use(video)
 conDb(process.env.MONGO_URI)
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 }
