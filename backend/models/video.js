@@ -27,7 +27,7 @@ const videoSchema = new mongoose.Schema({
     },
     duration: {
         type: String, // changed to string to match "19 minutes"
-        required: true,
+        required: false,
     },
     
 });

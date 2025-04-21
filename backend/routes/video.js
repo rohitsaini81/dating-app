@@ -5,8 +5,8 @@ import videoDb from '../models/video.js'
 
 video.get('/videoss', async (req, res) => {
 
-    const video  = await videoDb.find() 
-    res.send(video)
+    const videos  = await videoDb.find() 
+    res.send(videos)
 })
 
 
