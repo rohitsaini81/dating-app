@@ -11,6 +11,11 @@ import chatsDb from "../models/chat.js";
 import login from "./auth.js";
 import { uploadFile } from "../methods/upload.js";
 
+
+users.get("/test/users", async (req, res) => {
+  const users = await usersDb.find();
+  res.json(users);
+});
 users.get("/users", async (req, res) => {
   let sessionId = req.headers.authorization;
   if (sessionId) {

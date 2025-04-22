@@ -1,14 +1,13 @@
 import mongoose from "mongoose";
 
 const videoSchema = new mongoose.Schema({
+
     title: {
         type: String,
         required: true,
     },
     description: {
-        type: String,
-        required: false,
-    },
+        type: String},
     video_url: {
         type: String,
         required: true,
@@ -18,18 +17,15 @@ const videoSchema = new mongoose.Schema({
         required: true,
     },
     tags: {
-        type: [String], // array of strings
-        default: [],
+        type: [String]
     },
     category: {
         type: [String], // also array of strings
-        default: [],
     },
     duration: {
-        type: String, // changed to string to match "19 minutes"
-        required: false,
+        type: String,
     },
     
 });
 
-export default mongoose.model("xxxvideos", videoSchema);
+export default mongoose.model('xxxvideos', videoSchema);
