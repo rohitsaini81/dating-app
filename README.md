@@ -44,3 +44,20 @@ Installation Guide
 1. Clone the Repository
 
 Folder Structure
+
+/client     → React frontend  
+/server     → Express backend & APIs
+
+Future Improvements
+
+Push notifications
+
+Video chat integration
+
+Advanced search filters
+
+Premium features with Stripe
+
+Repository
+
+GitHub: https://github.com/rohitsaini81/lovelink.git
